@@ -1,0 +1,58 @@
+1.	 input = getDirectory("Choose an input directory");  
+2.	output = getDirectory("Choose an output directory");  
+3.	  
+4.	processFolder(input);   
+5.	  
+6.	function processFolder(dir) {  
+7.	list = getFileList(dir);  
+8.	for (i=0; i<list.length; i++) {  
+9.	            if(endsWith(list[i], ".lif")) { //add the file ending for your images  
+10.	        processFile(dir, output, list[i]);  
+11.	} else if(endsWith(list[i], "/") && !matches(output, ".*" + substring(list[i], 0, lengthOf(list[i])-1) + ".*")) {  
+12.	        //if the file encountered is a subfolder, go inside and run the whole process in the subfolder  
+13.	        processFolder(""+dir+list[i]);  
+14.	} else {  
+15.	        //if the file encountered is not an image nor a folder just print the name in the log window  
+16.	            print(dir + list[i]);  
+17.	}  
+18.	    }  
+19.	}  
+20.	function processFile(inputFolder, output, file) {  
+21.	open(inputFolder + file);  
+22.	title = getTitle();  
+23.	run("Split Channels");  
+24.	two = "C2-" +title;  
+25.	one = "C1-" + title;  
+26.	selectWindow(one);   
+27.	setMinAndMax(146, 255);  
+28.	selectWindow(two);  
+29.	setMinAndMax(15, 188);  
+30.	run("Merge Channels...", "c1=["+two+"] c5=["+one+"] create ignore");  
+31.	run("Z Project...", "projection=[Max Intensity]");  
+32.	run("Scale Bar...", "width=20 height=8 font=35 color=White background=None location=[Lower Right] bold overlay");  
+33.	saveAs("tiff", output + file);  
+34.	close(file);  
+35.	processsplit(title);   
+36.	}  
+37.	  
+38.	function processsplit(name)  {  
+39.	open(inputFolder + file);  
+40.	run("Split Channels");  
+41.	two = "C2-" +title;  
+42.	one = "C1-" + title;  
+43.	selectWindow(one);   
+44.	setMinAndMax(146, 255);  
+45.	selectWindow(two);  
+46.	setMinAndMax(15, 188);  
+47.	run("Merge Channels...", "c1=["+two+"] c5=["+one+"] create ignore");  
+48.	run("Z Project...", "projection=[Max Intensity]");  
+49.	run("Split Channels");  
+50.	cy = "C2-MAX_Composite";  
+51.	re= "C1-MAX_Composite";  
+52.	selectWindow(cy);   
+53.	saveAs("tiff", output + "DAPI-" + title);  
+54.	selectWindow(re);  
+55.	if(matches(title, "FoxJ1")){ saveAs("tiff", output + "FoxJ1-" + title);}   
+56.	else{saveAs("tiff", output + "Lin41-" + title);}   
+57.	close(file);  
+58.	}  
